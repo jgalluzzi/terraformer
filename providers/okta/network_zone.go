@@ -68,10 +68,22 @@ func attributesNetworkZone(networkZone *okta.NetworkZone) map[string]interface{}
 	attributes := map[string]interface{}{}
 	attributes["usage"] = networkZone.Usage
 
-	if networkZone.Type == "DYNAMIC" {
+	if networkZone.Typ	e == "DYNAMIC" {
 		if networkZone.Locations != nil {
-			attributes["dynamic_locations"] = networkZone.Locations
-		}
+            var dynamicLocations []string
+
+            for _, location := range networkZone.Locations {
+                if location != nil {
+                    locationStr := location.Country
+                    if location.Region != "" {
+                        locationStr = location.Country + "-" + location.Region
+                    }
+                    dynamicLocations = append(dynamicLocations, locationStr)
+                }
+            }
+
+            attributes["dynamic_locations"] = dynamicLocations
+        }
 	} else if networkZone.Type == "IP" {
 		switch {
 		case networkZone.Proxies != nil && networkZone.Gateways != nil:
